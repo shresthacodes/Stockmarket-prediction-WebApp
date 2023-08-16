@@ -4,3 +4,5 @@
 - [ ] connect an api that analyse our app and give the current stock trend predictions
 - [ ] check out fast apis (apis built with python)
 - [ ] there is also an api github repository called (https://github.com/public-apis/public-apis)
+
+https://api.stockdata.org/v1/data/quote?symbols= AAPL%2CTSLA%2CMSFT&api_token=YOUR_API_TOKEN
