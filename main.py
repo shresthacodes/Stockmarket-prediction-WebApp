@@ -1,4 +1,9 @@
+from ast import arguments
+from email import message
 import json
+from pyexpat.errors import messages
+
+from requests import session
 import openai
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -64,18 +69,144 @@ functions=[
             'properties':{
                 'ticker':{
                     'type':'string',
-                    'description':'The stock ticker symbol for a company (for example AAPL for APPLe ).'
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
                 }
             },
+            "required":["ticker"],
+
 
         }
-    }
+    },
+      {
+        'name':'calculate_SMA',
+        'desiption':'Calculate the simple moving average for a given stock ticker and window',
+        'parameters': {
+            'type': 'object',
+            'properties':{
+                'ticker':{
+                    'type':'string',
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
+                },
+                'window':{
+                    'type':'integer',
+                    'description':'The timeframe to consider when using SMA.'
+                }
+            },
+            "required":["ticker","window"],
+
+
+        }
+    },
+      {
+        'name':'calculate_EMA',
+        'desiption':'Calculate the exponential moving average for a given stock ticker and window',
+        'parameters': {
+            'type': 'object',
+            'properties':{
+                'ticker':{
+                    'type':'string',
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
+                },
+                'window':{
+                    'type':'integer',
+                    'description':'The timeframe to consider when using EMA.'
+                }
+            },
+            
+            "required":["ticker","window"],
+
+
+        }
+    },
+      {
+        'name':'calculate_RSI',
+        'desiption':'Calculate the RSI for a given stock ticker.',
+        'parameters': {
+            'type': 'object',
+            'properties':{
+                'ticker':{
+                    'type':'string',
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
+                }
+            },
+            "required":["ticker"],
+
+
+        }
+    },
+    {
+        'name':'calculate_MACD',
+        'desiption':'Calculate the MACD for a given stock ticker.',
+        'parameters': {
+            'type': 'object',
+            'properties':{
+                'ticker':{
+                    'type':'string',
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
+                }
+            },
+            "required":["ticker"],
+
+
+        }
+    },
+    {
+        'name':'plot_stock_price',
+        'desiption':'Plot the stock price for the last year given the ticker symbol of a company.',
+        'parameters': {
+            'type': 'object',
+            'properties':{
+                'ticker':{
+                    'type':'string',
+                    'description':'The stock ticker symbol for a company (for example AAPL for APPLE ).'
+                }
+            },
+            "required":["ticker"],
+
+
+        }
+    },
+
 
 ]
+available_functions={
+    'get_stock_price': get_stock_price,
+    'calculate_SMA':calculate_SMA,
+    'calculate_EMA':calculate_EMA,
+    'calculate_RSI':calculate_RSI,
+    'calculate_MACD':calculate_MACD,
+    'plot_stock_price':plot_stock_price,
+}
+
+if 'message' not in st.session_state:
+    st.session_state['messages']=[]
+st.title('A.I Stockbot')
+user_input=st.text_input('Your input:')
+if user_input:
+    try:
+        st.session_state['message'].append({'role':'user','content':f'{user_input}'})
+
+        response = openai.ChatCompletion.create(
+            model ='gpt-3.5-turbo-0613',
+            messages = st.session_state['message'],
+            functions = functions,
+            function_call = 'auto'
+        )
+        response_message = response['choice'][0]['message']
+
+        if response_message.get('function_call'):
+            function_name = response_message['function_call']['name']
+            function_args = json.loads(response_message['function_call']['arguments'])
+            if function_name in ['get_stock_price','calculate_SMA','calculate_EMA','calculate_RSI','calculate_MACD','plot_stock_price']:
+                args_dict = {'ticker': function_args.get('ticker')}
+            else:
+                args_dict = {'ticker': function_args.get('ticker'),'window': function_args.get('window')}
+
+    except:
+        pass
 
 
 
-   
 
 
 
