@@ -1,1 +1,1 @@
-# Stockamrket assistant 
+# Stockmarket assistant 
