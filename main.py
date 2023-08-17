@@ -51,7 +51,7 @@ def plot_stock_price(ticker):
     data=yf.Ticker(ticker).history(period='1y')
     plt.figure(figsize=(10,5))
     plt.plot(data.index, data.Close)
-    plt.title('{ticker} Stock Price Over Last Year')
+    plt.title(f'{ticker} Stock Price Over Last Year')
     plt.xlabel('Date')
     plt.ylabel('Stock Price ($)')
     plt.grid(True)
@@ -199,15 +199,35 @@ if user_input:
             function_args = json.loads(response_message['function_call']['arguments'])
             if function_name in ['get_stock_price','calculate_SMA','calculate_EMA','calculate_RSI','calculate_MACD','plot_stock_price']:
                 args_dict = {'ticker': function_args.get('ticker')}
-            else:
+            elif function_name in ['calculate_SMA', 'calculate_EMA']:
                 args_dict = {'ticker': function_args.get('ticker'),'window': function_args.get('window')}
 
-    except:
-        pass
+            function_to_call=available_functions[function_name]
+            function_response= function_to_call(**args_dict)
 
+            if function_name =='plot_stock_price':
+                st.image('stock.png')
+            else:
+                st.session_state['messages'].append(response_message)
+                st.session_state['messages'].append(
+                    {
+                        'role': 'function',
+                        'name': function_name,
+                        'content': function_response
 
+                    }
+                    
+                )
+                second_response = openai.ChatCompletion.create(
+                    model='gpt-3.5-turbo-0613',
+                    messages=st.session_state['messages']
 
-
-
-
-
+                )
+                st.text(second_response['choices'][0]['message']['content'])
+                st.session_state['messages'].append({'role': 'assistant', 'content': second_response['choices'][0]['message']['content']})
+        else:
+            st.text(response_message['content'])
+            st.session_state['messages'].append({'role': 'assistant','content': response_message['content']})
+    except Exception as e:
+        raise e
+       
