@@ -7,12 +7,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+<<<<<<< HEAD
 
+=======
+# import pandas_datareader as data
+# import pandas_datareader.data as web
+>>>>>>> 5714200 (changes)
 
 st.title("Stock trend detection")
 user_input = st.text_input("Enter stock ticker", 'AAPL')
 df = yf.download(user_input, start='2020-01-01', end='2023-7-31')
+<<<<<<< HEAD
 
+=======
+# df.head()
+>>>>>>> 5714200 (changes)
 
 # Description of data
 st.subheader("Data from 2021 to 2023")
